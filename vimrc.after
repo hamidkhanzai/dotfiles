@@ -1,0 +1,244 @@
+" Modeline and Notes {{{
+" vim: foldmarker={{{,}}} foldlevel=0 foldmethod=marker
+"
+" Author: "Gebhard Woestemeyer" <g.woestemeyer@gmail.com>
+"
+" Additions to the janus vim distribution.
+" }}}
+
+" Appearance {{{
+  set cursorline " Highlight current line
+  set showmode
+  set scrolloff=3
+
+  " Colorscheme {{{
+    set background=dark
+    highlight clear
+
+    if exists("syntax_on")
+      syntax reset
+    endif
+
+    set t_Co=256
+    " let g:solarized_degrade=1 " gray background
+    " let g:solarized_visibility = "high"
+    " let g:solarized_contrast = "high"
+    " let g:solarized_termtrans=1
+    " let g:solarized_termcolors=256
+    " solarized twilight wombat256mod ir_dark sorcerer mustang jellybeans
+    color xoria256
+  " }}}
+
+  " Fancy colorcolumn {{{
+    execute "set colorcolumn=" . join(range(81,335), ',')
+    hi ColorColumn guibg=#2d2d2d ctermbg=233
+  " }}}
+
+  " GUI options {{{
+    if has("gui_running")
+      set guioptions-=r " remove right scrollbar
+      set guioptions-=L " remove left scrollbar
+      set guioptions-=e " remove GUI Tab-Bar
+      set guioptions-=T " no toolbar
+      set guioptions-=m " no menu
+      set guioptions+=c " console dialogs
+      " set guioptions+=a " autoselect
+
+      if has('gui_macvim')
+        set transparency=0
+        set guifont=Menlo\ Regular:h12
+      endif
+    endif
+  " }}}
+" }}}
+
+" Options {{{
+  set hidden
+
+  set ssop-=options " do not store global and local values in a session
+  set ssop-=folds   " do not store folds
+
+  if $TMUX == ''
+    set clipboard+=unnamed
+  endif
+" }}}
+
+" Mappings {{{
+  " Map <leader> to <space>
+  " map <space> <leader>
+  " let mapleader <space><space> <leader><leader>
+
+  " Map ESC to jj and jk
+  " imap jj <ESC>
+  " imap kk <ESC>
+  imap jk <ESC>
+
+  " Format entire file and return to current cursor pos
+  nmap === ggVG=2<C-o>zz
+
+  " j, k go up/down to next row. Cursor keys (ugh!) go up/down a line in the
+  " file.
+  nnoremap j gj
+  nnoremap k gk
+  nnoremap <Down> j
+  nnoremap <Up> k
+
+  " Easier window movements
+  " map <C-J> <C-W>j<C-W>_
+  " map <C-K> <C-W>k<C-W>_
+  " map <C-L> <C-W>l<C-W>_
+  " map <C-H> <C-W>h<C-W>_
+  map <C-J> <C-W>j
+  map <C-K> <C-W>k
+  map <C-L> <C-W>l
+  map <C-H> <C-W>h
+
+  " // toggles comments
+  map // <Leader>c<Space>
+
+  " Clear highlighted search
+  nmap <silent> <leader>/ :nohlsearch<CR>
+
+  " Yank from the cursor to the end of the line, to be consistent with C and D.
+  nnoremap Y y$
+
+  " Easy saving in terminal
+  " imap <C-s> <Esc>:w<Enter>a
+  " nmap <C-s> <Esc>:w<Enter>
+  imap <leader>w <Esc>:w<Enter>a
+  nmap <leader>w <Esc>:w<Enter>
+  nmap <C-c> :q <esc>
+  nmap <leader>l :b# <esc>
+  nmap <C-n> :vsp <esc>
+  set clipboard=unnamedplus
+
+  " Delete all buffers
+  nmap <leader>D :bufdo bd<CR>
+
+  " Delete current buffer but keep the window open
+  " (http://vim.wikia.com/wiki/Deleting_a_buffer_without_closing_the_window)
+  nmap <leader>d <Plug>Kwbd
+
+  " Generate ctags
+  nmap <leader>ct :!unset TMUX ; tmux new -d "cd $(pwd) && ctags -R ."<CR>
+
+  " Useful Arrow Keys
+  " (http://codingfearlessly.com/2012/08/21/vim-putting-arrows-to-use/)
+  " nmap <Left> <<
+  " nmap <Right> >>
+  vmap <Left> <gv
+  vmap <Right> >gv
+  " nmap <Up> [e
+  " nmap <Down> ]e
+  vmap <Up> [egv
+  vmap <Down> ]egv
+
+  " insert new line without entering insert mode.
+  " nmap <CR> o<Esc>
+
+  " open new tabs
+  nmap <leader>tn <esc>:tabnew<cr>
+  vmap <leader>tn <esc>:tabnew<cr>
+  " imap <leader>tn <esc>:tabnew<cr>i
+
+  " nmap <silent> <leader>ul :t.<CR>Vr=
+  nmap <silent> <leader>u= :t.<CR>Vr=
+  nmap <silent> <leader>u- :t.<CR>Vr-
+" }}}
+
+" Plugins {{{
+  " CtrlP {{{
+    " let g:ctrlp_custom_ignore = '\v[\/](\.(git|hg|svn)|vendor)$'
+    set wildmode=list:longest
+    set wildmenu                "enable ctrl-n and ctrl-p to scroll thru matches
+    set wildignore+=*/vendor/*
+    set wildignore+=*/backup[s]/*
+    set wildignore=*.o,*.obj,*~ "stuff to ignore when tab completing
+    set wildignore+=*vim/backups*
+    set wildignore+=*sass-cache*
+    set wildignore+=*DS_Store*
+    set wildignore+=vendor/rails/**
+    set wildignore+=vendor/cache/**
+    set wildignore+=*.gem
+    set wildignore+=log/**
+    set wildignore+=tmp/**
+    set wildignore+=*.png,*.jpg,*.gif
+
+  " }}}
+
+  " GitGutter {{{
+    nmap <leader>gg :GitGutterToggle<CR>
+    hi clear SignColumn
+  " }}}
+
+  " Ruby {{{
+    let g:ruby_indent_access_modifier_style = 'indent'
+  " }}}
+
+  " Syntastic {{{
+    let g:syntastic_ruby_checkers = ['mri', 'rubocop']
+  " }}}
+
+  " Vroom, Vimux {{{
+    let g:vroom_use_vimux=1
+    let vroom_spec_command="xvfb-run bundle exec rspec"
+    let g:vroom_use_bundle_exec=0
+    " use windows instead of panes
+    " let g:VimuxRunnerType = "window"
+  " }}}
+
+  " NERDCommenter {{{
+    let NERDSpaceDelims=1 " Whitespace around comments
+  " }}}
+
+  " NERDTree {{{
+    " Only chdir when root dir is changed
+    let NERDTreeChDirMode=2
+    nmap <leader>nt :NERDTreeFind<CR>
+    " let NERDTreeQuitOnOpen=0
+  " }}}
+
+  " ChangeHashSyntax {{{
+    " map <leader>h :ChangeHashSyntax<CR>
+  " }}}
+
+  " Tabular {{{
+  if exists(":Tabularize")
+    nmap <leader>a= :Tabularize /=<CR>
+    vmap <leader>a= :Tabularize /=<CR>
+    nmap <leader>a: :Tabularize /:\zs<CR>
+    vmap <leader>a: :Tabularize /:\zs<CR>
+    nmap <leader>a> :Tabularize /=><CR>
+    vmap <leader>a> :Tabularize /=><CR>
+  endif
+
+  " seeing is believing {{{
+    nmap <buffer> <F8> <Plug>(seeing-is-believing-run)
+    xmap <buffer> <F8> <Plug>(seeing-is-believing-run)
+    imap <buffer> <F8> <Plug>(seeing-is-believing-run)
+
+    nmap <buffer> <F7> <Plug>(seeing-is-believing-mark)
+    xmap <buffer> <F7> <Plug>(seeing-is-believing-mark)
+    imap <buffer> <F7> <Plug>(seeing-is-believing-mark)
+  " }}}
+
+" Functions {{{
+  " Automatically remove trailing whitespace {{{
+    fun! StripTrailingWhitespace()
+      let l = line(".")
+      let c = col(".")
+      %s/\s\+$//e
+      call cursor(l, c)
+    endfun
+    autocmd FileType c,cpp,java,php,ruby,python,html,haml
+          \ autocmd BufWritePre <buffer> :call StripTrailingWhitespace()
+
+    " use StripTrailingWhitespace() instead of the one provided by janus
+    command! KillWhitespace call StripTrailingWhitespace()
+    nmap <leader>kw :KillWhitespace<CR>
+  " }}}
+
+  " Abbreviations {{{
+    ia bp require 'pry'; binding.pry
+    ia sh require 'spec_helper'RSpec.describe
+" }}}
